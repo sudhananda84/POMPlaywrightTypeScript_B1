@@ -474,15 +474,27 @@ test("add products to cart and validate cart @reactshoppingcart", async ({page})
         const productPrice = await allProductNames[i].locator("xpath=following-sibling::div/p[contains(@class,'sc-124al1g-6')]").innerText();
         const productName = await allProductNames[i].innerText();
         
-        
-        if (productPrice == '$10.90'){
+        if (productPrice == '$10.90' || productPrice == "$14.90"){
             await allProductNames[i].locator("xpath=following-sibling::button[text()='Add to cart']").click({force:true});
             //console.log(productName + "===" + productPrice);
             allProducts[productName] = productPrice;
         }
     }
 
+
     console.log(allProducts);
 
+    const cartProductsLocator = page.locator("//p[contains(@class,'sc-11uohgb-2')]");
+    const allProductsInCart = await cartProductsLocator.all();
+
+    let addedProductsToCart:{[key:string]: string}= {};
+    for (let i =0; i< allProductsInCart.length; i++){
+        const productNameInCart = await allProductsInCart[i].innerText();
+        const productPriceInCart = await allProductsInCart[i].locator("xpath=../following-sibling::div/p").innerText();
+        addedProductsToCart[productNameInCart] = productPriceInCart;
+    }
+
+    console.log(addedProductsToCart);
+    await page.pause();
     
 })
