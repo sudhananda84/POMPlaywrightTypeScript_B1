@@ -87,7 +87,7 @@ test('TC_ADM_02 - Create system user with Admin role', async ({ page }) => {
     const stamp = Date.now().toString().slice(-6);
     const firstName = 'Adm' + stamp;
     const lastName = 'Nair';
-    const username = 'priya.admin' + stamp;
+    const username = 'tester.admin' + stamp;
     const password = 'Admin@2026';
 
     // Login
@@ -305,3 +305,184 @@ test('TC_ADM_04 - Add User mandatory field and data validation', async ({ page }
     await page.getByRole('menuitem', { name: 'Logout' }).click();
     await expect(page).toHaveURL(/auth\/login/);
 });
+
+
+ 
+
+test('add products to cart and validate @shoppingcart', async ({page}, testInfo)=>{
+
+    await page.goto("https://react-shopping-cart-67954.firebaseapp.com/%27");
+
+    await expect(page).toHaveTitle(/Typescript React Shopping cart/);
+    await page.waitForLoadState()
+
+    const priceEls = page.locator("//small[text()='$']/parent::p");
+    
+    await expect(priceEls).not.toHaveCount(0, {timeout:20000});
+
+    const priceElems = await priceEls.all();
+    
+
+    console.log(priceElems.length);
+
+   await expect(priceElems[0]).toBeVisible();
+
+   let prices = ['$10.90', '$14.90'];
+
+   let  addedProducts: {[key: string]:string} = {};
+
+ 
+
+    for (let i =0; i< priceElems.length; i++){
+
+        let priceText = await priceElems[i].innerText();
+
+        console.log(priceText);
+
+        if (prices.includes(priceText)){
+
+            const wholeProductElem = priceElems[i].locator('../..');
+
+            
+
+            const screenshot = await wholeProductElem.screenshot();
+
+
+            const productName = await wholeProductElem.locator("//p[@class='sc-124al1g-4 eeXMBo']").innerText();
+
+            addedProducts[productName] = priceText;
+
+            const cartButton=  wholeProductElem.getByRole('button', {name:'Add to cart'});
+
+           
+
+            await cartButton.click({force:true});
+
+        }
+
+ 
+
+    }
+
+    console.log("added products :", addedProducts);
+
+})
+
+ 
+test('add products to cart and validate_new approach @shoppingcart1', async ({page}, testInfo)=>{
+
+    await page.goto("https://react-shopping-cart-67954.firebaseapp.com/%27");
+
+    await expect(page).toHaveTitle(/Typescript React Shopping cart/);
+    await page.waitForLoadState()
+
+    const priceEls = page.locator("//small[text()='$']/parent::p");
+    await expect(priceEls).not.toHaveCount(0, {timeout:20000});
+    const priceElems = await priceEls.all();
+    console.log(priceElems.length);
+
+   await expect(priceElems[0]).toBeVisible();
+
+   let prices = ['$10.90', '$14.90'];
+
+   let  addedProducts: {[key: string]:string} = {};
+
+    const priceElems1 = page.locator("//small[text()='$']/parent::p");
+    const productElems = priceElems1.filter({hasText:prices[0]}).or(priceElems1.filter({hasText:prices[1]}));
+    console.log(await productElems.count(), " total productelemnts" );
+
+    const productPrices = await productElems.allInnerTexts();
+    const productNames = await productElems.locator('../..').locator("//p[@class='sc-124al1g-4 eeXMBo']").allInnerTexts();
+    addedProducts = Object.fromEntries(productNames.map((name, i) => [name, productPrices[i]]));
+
+    const cartButtons = productElems.locator('../..').getByRole('button', {name:'Add to cart'});
+    for (const cartButton of await cartButtons.all()) {
+        await cartButton.click({force:true});
+    }
+
+    console.log("added products :", addedProducts);
+
+
+ 
+/*
+    for (let i =0; i< priceElems.length; i++){
+
+        let priceText = await priceElems[i].innerText();
+
+        console.log(priceText);
+
+        if (prices.includes(priceText)){
+
+            const wholeProductElem = priceElems[i].locator('../..');
+
+            
+
+            const screenshot = await wholeProductElem.screenshot();
+
+
+            const productName = await wholeProductElem.locator("//p[@class='sc-124al1g-4 eeXMBo']").innerText();
+
+            addedProducts[productName] = priceText;
+
+            const cartButton=  wholeProductElem.getByRole('button', {name:'Add to cart'});
+
+           
+
+            await cartButton.click({force:true});
+
+        }
+
+     
+ 
+
+    }   */
+
+    //console.log("added products :", addedProducts);
+
+})
+
+
+test ("print all menu links in amazon @amazon",  async ({page}) => {
+    await page.goto("https://www.amazon.in/");
+
+    const allMenuLinks = page.locator("//a[@class='nav-a  ']");
+    await allMenuLinks.first().waitFor({state:"visible"});
+    const totalElems = await allMenuLinks.all();
+    console.log("count of menus :", totalElems.length);
+    for (let i = 0; i< totalElems.length; i++){
+        const linkText = await totalElems[i].innerText();
+        const url = await totalElems[i].getAttribute("href");
+        console.log(linkText +" === " + url);
+    }
+
+     
+
+});
+
+test("add products to cart and validate cart @reactshoppingcart", async ({page}) =>{
+    await page.goto("https://react-shopping-cart-67954.firebaseapp.com/%27");
+
+    await page.waitForLoadState("networkidle");
+
+    const productNameLocator =  page.locator("//p[contains(@class,'sc-124al1g-4')]");
+
+    const allProductNames = await productNameLocator.all();
+    let allProducts:{[key:string]: string}= {};
+
+    console.log("total products matched : ", allProductNames.length);
+    for (let i = 0; i< allProductNames.length; i++){
+        const productPrice = await allProductNames[i].locator("xpath=following-sibling::div/p[contains(@class,'sc-124al1g-6')]").innerText();
+        const productName = await allProductNames[i].innerText();
+        
+        
+        if (productPrice == '$10.90'){
+            await allProductNames[i].locator("xpath=following-sibling::button[text()='Add to cart']").click({force:true});
+            //console.log(productName + "===" + productPrice);
+            allProducts[productName] = productPrice;
+        }
+    }
+
+    console.log(allProducts);
+
+    
+})

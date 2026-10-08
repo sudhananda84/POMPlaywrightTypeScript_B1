@@ -56,11 +56,11 @@ test('TC_PIM_01 - Create employee with mandatory fields only', async ({ page }) 
 
 test('TC_PIM_02 - Create employee with photo and login details, then login as new user', async ({ page }) => {
     const stamp = Date.now().toString().slice(-6);
-    const firstName = 'Priya' + stamp;
+    const firstName = 'Tester' + stamp;
     const middleName = 'S';
     const lastName = 'Nair';
     const employeeId = 'P2' + stamp;
-    const username = 'priya.nair' + stamp;
+    const username = 'Tester.nair' + stamp;
     const password = 'Welcome@123';
     // 1x1 PNG, well under the 1MB limit
     const photo = Buffer.from(
@@ -81,7 +81,7 @@ test('TC_PIM_02 - Create employee with photo and login details, then login as ne
     await expect(page).toHaveURL(/pim\/addEmployee/);
 
     // Upload photo
-    await page.locator('input[type="file"]').setInputFiles({ name: 'priya.png', mimeType: 'image/png', buffer: photo });
+    await page.locator('input[type="file"]').setInputFiles({ name: 'Tester.png', mimeType: 'image/png', buffer: photo });
 
     // Fill name and Employee Id
     await page.getByPlaceholder('First Name').fill(firstName);
